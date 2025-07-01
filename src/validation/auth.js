@@ -20,3 +20,14 @@ export const loginUserSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
 });
+
+// схема для запита на скидання паролю
+export const requestResetEmailSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+// схема на скидання паролю
+export const resetPasswordSchema = Joi.object({
+  password: Joi.string().required(),
+  token: Joi.string().required(),
+});
