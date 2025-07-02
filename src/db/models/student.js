@@ -29,6 +29,10 @@ const studentsSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'users',
     },
+    // для додавання до обьекту студента фото
+    photo: {
+      type: String,
+    },
   },
   {
     timestamps: true,

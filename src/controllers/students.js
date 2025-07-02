@@ -9,6 +9,7 @@ import {
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parsedSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
 
 // Тепер, користуючись цим парсером, ми можемо отримати
 // значення page та perPage і передати їх далі до сервісу:
@@ -87,12 +88,28 @@ export const upsertStudentController = async (req, res, next) => {
 };
 
 export const patchStudentController = async (req, res, next) => {
-  const { studentId } = req.params;
-  const result = await updateStudent(studentId, req.body);
+  const { studentId } = req.params; // ID студента з URL
+  // отрим. обьєкт зображ в тілі контролеру
+  const photo = req.file; // Файл фото (якщо є)
+  let photoUrl; // Змінна для URL фото
+
+  // Якщо фото надіслано → викликаємо saveFileToUploadDir()
+  // Файл переміщується з temp/ в uploads/
+  // Отримуємо URL: "https://myapp.com/uploads/1672531200000_photo.jpg"
+  if (photo) {
+    photoUrl = await saveFileToUploadDir(photo);
+  }
+
+  // оновлення студента в базі даних
+  const result = await updateStudent(studentId, {
+    ...req.body, // розпаковуємо Всі поля з форми (name, email тощо)
+    photo: photoUrl, // URL фото (або undefined)
+  });
+  // перевірка результату
   if (!result) {
     next(createHttpError(404, 'Student not found'));
   }
-
+  // повернення успішної відповіді
   res.json({
     status: 200,
     message: 'Successfully patched a student',

@@ -26,3 +26,7 @@ export const SMTP = {
 export const TEMPLATES_DIR = path.join(process.cwd(), 'src', 'templates');
 // поверт поточну директ, з якої був запущ.процес.
 // об'єднує шляхи
+
+// збереження завантаж файлів у визначеній директорії
+export const TEMP_UPLOAD_DIR = path.join(process.cwd(), 'temp');
+export const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
