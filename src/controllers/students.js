@@ -10,6 +10,8 @@ import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parsedSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 // Тепер, користуючись цим парсером, ми можемо отримати
 // значення page та perPage і передати їх далі до сервісу:
@@ -97,7 +99,11 @@ export const patchStudentController = async (req, res, next) => {
   // Файл переміщується з temp/ в uploads/
   // Отримуємо URL: "https://myapp.com/uploads/1672531200000_photo.jpg"
   if (photo) {
-    photoUrl = await saveFileToUploadDir(photo);
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
   }
 
   // оновлення студента в базі даних
