@@ -15,6 +15,10 @@ import { sendMail } from '../utils/sendMail.js';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import handlebars from 'handlebars';
+import {
+  getFullNameFromGoogleTokenPayload,
+  validateCode,
+} from '../utils/googleOAuth2.js';
 
 // реєстрація користувачів
 
@@ -196,4 +200,32 @@ export const resetPassword = async (payload) => {
     { _id: user._id },
     { password: encryptedPassword },
   );
+};
+// В результаті ми отримаємо loginTicket, з якого зможемо за
+// допомогою методу getPayload() дістати закодовані дані. Далі
+// на основі тих даних, що у нас присутні в payload ми або
+// створюємо користувача, або використовуємо вже існуючого і
+// логінимо його за допомогою нашого механізму сессій.
+export const loginOrSignupWithGoogle = async (code) => {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+  if (!payload) throw createHttpError(401);
+
+  let user = await UsersCollection.findOne({ email: payload.email });
+  if (!user) {
+    const password = await bcrypt.hash(randomBytes(10), 10);
+    user = await UsersCollection.create({
+      email: payload.email,
+      name: getFullNameFromGoogleTokenPayload(payload),
+      password,
+      role: 'parent',
+    });
+  }
+
+  const newSession = createSession();
+
+  return await SessionsCollection.create({
+    userId: user._id,
+    ...newSession,
+  });
 };
