@@ -13,7 +13,7 @@ const oauthConfig = JSON.parse(await readFile(PATH_JSON));
 const googleOAuthClient = new OAuth2Client({
   clientId: getEnvVar('GOOGLE_AUTH_CLIENT_ID'), //Ід клієнта, отриманий зі змінних оточення.
   clientSecret: getEnvVar('GOOGLE_AUTH_CLIENT_SECRET'), //секрет зі змін оточ
-  redirectUri: oauthConfig.web.redirectUri_uris[0], //куди перенаправить після аутентиф
+  redirectUri: oauthConfig.web.redirect_uris[0], //куди перенаправить після аутентиф
 });
 
 //Експортуємо фукцію generateAuthUrl, в якій викликається метод
